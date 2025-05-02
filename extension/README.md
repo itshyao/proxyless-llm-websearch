@@ -32,12 +32,12 @@
 }
 ```
 
-![1](D:/personal/project/proxyless-llm-websearch/extension/img/1.png)
+![1](img/1.png)
 
-![2](D:/personal/project/proxyless-llm-websearch/extension/img/2.png)
+![2](img/2.png)
 
-![3](D:/personal/project/proxyless-llm-websearch/extension/img/3.png)
+![3](img/3.png)
 
-![4](D:/personal/project/proxyless-llm-websearch/extension/img/4.png)
+![4](img/4.png)
 
-![5](D:/personal/project/proxyless-llm-websearch/extension/img/5.png)
+![5](img/5.png)
