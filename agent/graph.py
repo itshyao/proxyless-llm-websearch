@@ -55,7 +55,7 @@ class ToolsGraph:
         return {"messages": [response]}
 
     async def run(self, question):
-        inputs = {"messages": [SystemMessage(content=prompts["web_prompt"]),HumanMessage(content=question)]}
+        inputs = {"messages": [SystemMessage(content=prompts["web_prompt"] + f"\n当前时间：{get_datetime_str()}"),HumanMessage(content=question)]}
         final_state = await self.graph.ainvoke(inputs)
         for i in final_state["messages"]:
             print(i)

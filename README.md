@@ -84,7 +84,7 @@ async def main():
     await browser_pool._create_browser_instance(headless=True)
     await crawler_pool._get_instance()
 
-    result = await graph.run("langgraph到底该怎么使用?")
+    result = await graph.run("广州今日天气")
 
     await browser_pool.cleanup()
     await crawler_pool.cleanup()
@@ -102,20 +102,19 @@ if __name__ == "__main__":
 python api_serve.py
 '''
 import requests
-import json
 
-
-url = "http://localhost:8000/search"  
+url = "http://localhost:8000/search"
 
 data = {
-    "question": "langgraph到底该怎么使用?"  
+    "question": "广州今日天气"
 }
 
 try:
     response = requests.post(
         url,
         json=data
-    
+    )
+
     if response.status_code == 200:
         print("✅ 请求成功！")
         print("响应内容：", response.json())
@@ -133,7 +132,9 @@ except requests.exceptions.RequestException as e:
 python gradio_demo.py
 ```
 
-![gradio](img/gradio.png)
+![gradio](img/gradio1.png)
+
+![gradio](img/gradio2.png)
 
 ## 🔍 与线上网络检索测试对比
 
