@@ -1,0 +1,13 @@
+bs4
+playwright
+lxml
+httpx
+loguru
+fastapi
+uvicorn
+openai
+langchain_openai
+langgraph
+langchain_community
+langchain-text-splitters
+torch
