@@ -133,7 +133,7 @@ except requests.exceptions.RequestException as e:
 python gradio_demo.py
 ```
 
-![gradio](D:/personal/project/proxyless-llm-websearch/img/gradio.png)
+![gradio](img/gradio.png)
 
 ## 🔍 与线上网络检索测试对比
 
