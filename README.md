@@ -30,9 +30,9 @@
 
   - 🌍 提供 Gradio Web UI，可快速部署成可视化应用。
 
-![workflow](D:/personal/project/proxyless-llm-websearch/img/workflow.png)
+![workflow](img/workflow.png)
 
-![framework](D:/personal/project/proxyless-llm-websearch/img/framework.png)
+![framework](img/framework.png)
 
 ## ⚡ 快速开始
 
