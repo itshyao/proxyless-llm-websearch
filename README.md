@@ -23,7 +23,7 @@
 
   - 🌍 提供 Gradio Web UI，可快速部署成可视化应用。
   
-  - 🧩[ **浏览器插件支持**](https://github.com/itshyao/proxyless-llm-websearch/tree/main/extension)：支持 Edge 和 Chrome 浏览器，提供智能 URL 解析插件，直接在浏览器中发起网页解析与内容提取请求。
+  - 🧩[ **浏览器插件支持**](https://github.com/itshyao/proxyless-llm-websearch/tree/main/extension)：支持 Edge ，提供智能 URL 解析插件，直接在浏览器中发起网页解析与内容提取请求。
   
 
 ![workflow](img/workflow.png)
