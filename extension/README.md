@@ -20,7 +20,7 @@
 
 2. **启用开发者模式** 
 
-3. **打开**https://microsoftedge.microsoft.com/addons/detail/hobgcfnjjalpdmlcjgknkklkohbhoijd，点击获取即可使用
+3. **打开**，[点击获取即可使用](https://microsoftedge.microsoft.com/addons/detail/hobgcfnjjalpdmlcjgknkklkohbhoijd)
 
 ## 🛠 使用须知
 
