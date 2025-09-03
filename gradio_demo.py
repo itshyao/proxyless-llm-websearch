@@ -1,13 +1,30 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import gradio as gr
 import asyncio
 
 from agent import ToolsGraph
 from pools import BrowserPool, CrawlerPool
 
+from ultis import QueryRequest, SplitRequest, RerankRequest
+from reranker import OpenAIEmbeddingReranker, Chunker, DashscopeReranker
+
 
 async def search_answer(question: str, engine: str):
     browser_pool = BrowserPool(pool_size=1)
     crawler_pool = CrawlerPool(pool_size=1)
+    params = QueryRequest(
+        question=question,
+        engine=engine,
+        split=SplitRequest(chunk_size=512, chunk_overlap=128, separators=["\n\n", "\n"]),
+        rerank=RerankRequest(top_k=5)
+    )
+
+    chunker = Chunker(chunk_size=params.split.chunk_size, chunk_overlap=params.split.chunk_overlap, separators=params.split.separators)
+    reranker = DashscopeReranker(top_k=params.rerank.top_k)
+    
+    graph = ToolsGraph(browser_pool, crawler_pool, engine=params.engine, chunker=chunker, reranker=reranker)
     graph = ToolsGraph(browser_pool, crawler_pool, engine=engine)
     result = await graph.run(question)
     return result
@@ -28,4 +45,5 @@ with gr.Blocks() as demo:
     btn.click(fn=sync_search_answer, inputs=[question, engine], outputs=output)
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(server_name="0.0.0.0", server_port=7860)  # 不要传 share=True
+

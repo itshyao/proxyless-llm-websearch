@@ -1,10 +1,7 @@
 from engines import BingSearch, QuarkSearch, BaiduSearch, SougouSearch
-from reranker import OpenAIEmbeddingReranker, Chunker
 from typing import List, Optional
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel
-
-reranker = OpenAIEmbeddingReranker()
 
 
 class WebSearchArgsSchema(BaseModel):
@@ -18,10 +15,13 @@ class LinkParserArgsSchema(BaseModel):
 
 class WebTools():
 
-    def __init__(self, browser_pool, crawler_pool, engine):
+    def __init__(self, browser_pool, crawler_pool, engine, chunker, reranker):
         self.browser_pool = browser_pool
         self.crawler_pool = crawler_pool
         self.engine = engine
+        self.chunker=chunker
+        self.reranker=reranker
+
         self.web_search = StructuredTool(
             name='web_search',
             description='网络搜索功能，模拟搜索引擎，专门解决实时类问题的查询。',
@@ -50,27 +50,28 @@ class WebTools():
         result = await search.response(questions)
         return result
 
+    async def split_and_reranker(self, query, contents):
+        results, chunks, indexs, n = [], [], {}, 0
+        for content in contents:
+            final_splits = self.chunker.split_text(content["content"])
+            chunks.extend([chunk for chunk in final_splits])
+            for i in range(n, len(chunks)+n):
+                indexs[i] = content["url"]
+            n += len(chunks)
+
+        reranked_chunks, reranked_indexs = await self.reranker.get_reranked_documents(query, chunks)
+        results = [{indexs[reranked_indexs[i]]: reranked_chunks[i]} for i in range(len(reranked_chunks))]
+
+        return results
+
     async def link_parser_function(self, urls: list, query: Optional[str] = None) -> list:
         try:
             async with self.crawler_pool.get_crawler() as crawler:
                 results = await crawler.run(urls)
                 if query:
-                    results = await split_and_reranker(query, results)
-                    print(results)
+                    results = await self.split_and_reranker(query, results)
                     return results
                 else:
                     return results
         except:
             return results
-
-async def split_and_reranker(query, contents):
-    results = []
-    for content in contents:
-        splitter = Chunker()
-        final_splits = splitter.split_text(content["content"])
-        final_splits = [chunk for chunk in final_splits]
-        reranker_results = await reranker.get_reranked_documents(query, final_splits, top_k=10)
-        content["content"] = "\n".join(reranker_results)
-        if content["content"]:
-            results.append(content)
-    return results

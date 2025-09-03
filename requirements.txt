@@ -1,5 +1,6 @@
 bs4
 playwright
+crawl4ai
 lxml
 httpx
 loguru
@@ -10,4 +11,6 @@ langchain_openai
 langgraph
 langchain_community
 langchain-text-splitters
-torch
+numpy
+gradio
+dashscope

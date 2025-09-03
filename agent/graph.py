@@ -5,11 +5,10 @@ from langgraph.graph import END, START, StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode
 from typing import Literal
 from datetime import datetime
-from dotenv import load_dotenv
 import os
 from agent.tools import WebTools
 from .prompt import prompts
-load_dotenv()
+
 def get_datetime_str():
     now = datetime.now()
     datetime_str = now.strftime("%Y-%m-%d %H:%M")
@@ -17,11 +16,20 @@ def get_datetime_str():
 
 class ToolsGraph:
 
-    def __init__(self, browser_pool, crawler_pool, engine):
+    def __init__(self, browser_pool, crawler_pool, engine, chunker=None, reranker=None):
         self.browser_pool = browser_pool
         self.crawler_pool = crawler_pool
         self.engine = engine
-        self.ts_manage = WebTools(browser_pool=self.browser_pool, crawler_pool=crawler_pool, engine=self.engine)
+        self.chunker = chunker
+        self.reranker = reranker
+
+        self.ts_manage = WebTools(
+            browser_pool=self.browser_pool, 
+            crawler_pool=self.crawler_pool, 
+            engine=self.engine, 
+            chunker=self.chunker,
+            reranker=self.reranker)
+            
         self.tools = [self.ts_manage.web_search, self.ts_manage.link_parser]
         self.tool_node = ToolNode(self.tools)
         self.llm = ChatOpenAI(
@@ -50,13 +58,13 @@ class ToolsGraph:
 
     async def call_model(self, state: MessagesState):
         messages = state["messages"]
-        print(messages)
         response = await self.llm.ainvoke(messages)
         return {"messages": [response]}
 
     async def run(self, question):
         inputs = {"messages": [SystemMessage(content=prompts["web_prompt"] + f"\n当前时间：{get_datetime_str()}"),HumanMessage(content=question)]}
         final_state = await self.graph.ainvoke(inputs)
+        print(final_state)
         for i in final_state["messages"]:
             print(i)
         return final_state["messages"][-1].content

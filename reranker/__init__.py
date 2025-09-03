@@ -1,4 +1,5 @@
 from .chunker import MarkdownSplitter, Chunker
-from .base import OpenAIEmbeddingReranker
+from .EmReranker import OpenAIEmbeddingReranker
+from .DsReranker import DashscopeReranker
 
-__all__ = ["MarkdownSplitter", "OpenAIEmbeddingReranker", "Chunker"]
+__all__ = ["MarkdownSplitter", "OpenAIEmbeddingReranker", "Chunker", "DashscopeReranker"]
