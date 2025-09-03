@@ -33,6 +33,10 @@
 
 一个无需代理的多搜索引擎 LLM 网络检索工具，支持 URL 内容解析和网页爬取，结合 LangGraph 实现模块化智能体链路。专为大语言模型的外部知识调用场景而设计，支持 **Playwright + Crawl4AI** 网页获取与解析，支持异步并发、内容切片与重排过滤。
 
+## 🚀 更新日志
+
+- 🔥 2025-09-03：新增 Docker 部署、内置智能重排器、支持自定义文本切分器与重排器
+
 ## ✨ 特性一览
 
 - 🌐 **无需代理**：通过 Playwright 配置国内浏览器支持，无需代理也能进行网络搜索。
@@ -49,13 +53,14 @@
 
   - 🚫 **内容过滤**：自动剔除无关或重复内容。
 - 🌐 **多端支持**：
+  - 🐳 **支持 Docker 部署**：一键启动，快速构建后端服务。
 
   - 🖥️ 提供 FastAPI 后端接口，可集成到任意系统中。
 
   - 🌍 提供 Gradio Web UI，可快速部署成可视化应用。
-  
+
   - 🧩[ **浏览器插件支持**](https://github.com/itshyao/proxyless-llm-websearch/tree/main/extension)：支持 Edge ，提供智能 URL 解析插件，直接在浏览器中发起网页解析与内容提取请求。
-  
+
 
 ![workflow](img/workflow.png)
 
@@ -82,58 +87,49 @@ python -m playwright install
 #### 环境变量配置
 
 ```
-OPENAI_API_KEY=xxx
-OPENAI_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
-MODEL_NAME=deepseek-v3-250324
+# 百炼llm
+OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+OPENAI_API_KEY=sk-xxx
+MODEL_NAME=qwen-plus-latest
 
-EMBEDDING_MODEL_NAME=doubao-embedding-large-text-240915
-EMBEDDING_API_KEY=xxx
-EMBEDDING_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+# 百炼embedding
+EMBEDDING_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+EMBEDDING_API_KEY=sk-xxx
+EMBEDDING_MODEL_NAME=text-embedding-v4
+
+# 百炼reranker
+RERANK_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+RERANK_API_KEY=sk-xxx
+RERANK_MODEL=gte-rerank-v2
 ```
 
 #### demo
 
-```python
-'''
+```shell
 python demo.py
-'''
-
-from pools import BrowserPool, CrawlerPool
-from agent import ToolsGraph
-import asyncio
-
-async def main():
-    browser_pool = BrowserPool(pool_size=1)
-    crawler_pool = CrawlerPool(pool_size=1)
-    
-    graph = ToolsGraph(browser_pool, crawler_pool, engine="bing")
-
-    await browser_pool._create_browser_instance(headless=True)
-    await crawler_pool._get_instance()
-
-    result = await graph.run("广州今日天气")
-
-    await browser_pool.cleanup()
-    await crawler_pool.cleanup()
-
-    print(result)
-
-if __name__ == "__main__":
-    asyncio.run(main())
 ```
 
 #### 后端api
 
-```python
-'''
+```shell
 python api_serve.py
-'''
+```
+
+```python
 import requests
 
-url = "http://localhost:8000/search"
+url = "http://localhost:8800/search"
 
 data = {
-    "question": "广州今日天气"
+  "question": "广州今日天气",
+  "engine": "bing",
+  "split": {
+    "chunk_size": 512,
+    "chunk_overlap": 128
+  },
+  "rerank": {
+    "top_k": 5
+  }
 }
 
 try:
@@ -162,6 +158,49 @@ python gradio_demo.py
 ![gradio](img/gradio1.png)
 
 ![gradio](img/gradio2.png)
+
+#### docker部署
+
+```
+docker-compose up -d --build
+```
+
+### 4. 自定义模块
+
+#### 自定义分块
+
+```
+from typing import Optional, List
+
+class YourSplitter:
+    def __init__(self, text: str, chunk_size: int = 512, chunk_overlap: int = 128):
+        self.text = text
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+
+    def split_text(self, text: Optional[str] = None) -> List:
+        # TODO: implement splitting logic
+        return ["your chunk"]
+```
+
+#### 自定义重排
+
+```
+from typing import List, Union, Tuple
+
+class YourReranker:
+    async def get_reranked_documents(
+        self,
+        query: Union[str, List[str]],
+        documents: List[str],
+    ) -> Union[
+        Tuple[List[str]],
+        Tuple[List[int]],
+    ]:
+        return ["your chunk"], ["chunk index"]
+```
+
+
 
 ## 🔍 与线上网络检索测试对比
 
