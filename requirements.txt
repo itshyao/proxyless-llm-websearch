@@ -14,3 +14,5 @@ langchain-text-splitters
 numpy
 gradio
 dashscope
+langchain-mcp-adapters
+mcp

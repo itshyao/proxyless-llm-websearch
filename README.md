@@ -1,4 +1,3 @@
-
 <div align="right">
   <details>
     <summary >🌐 Language</summary>
@@ -28,13 +27,13 @@
     </div>
   </details>
 </div>
-
 # 🧠 无需代理的LLM网络搜索引擎
 
-一个无需代理的多搜索引擎 LLM 网络检索工具，支持 URL 内容解析和网页爬取，结合 LangGraph 实现模块化智能体链路。专为大语言模型的外部知识调用场景而设计，支持 **Playwright + Crawl4AI** 网页获取与解析，支持异步并发、内容切片与重排过滤。
+一个无需代理的多搜索引擎 LLM 网络检索工具，支持 URL 内容解析和网页爬取，结合 **LangGraph**与**LangGraph-MCP** 实现模块化智能体链路。专为大语言模型的外部知识调用场景而设计，支持 **Playwright + Crawl4AI** 网页获取与解析，支持异步并发、内容切片与重排过滤。
 
 ## 🚀 更新日志
 
+- 🔥 2025-09-05：支持**langgraph-mcp**
 - 🔥 2025-09-03：新增 Docker 部署、内置智能重排器、支持自定义文本切分器与重排器
 
 ## ✨ 特性一览
@@ -68,23 +67,21 @@
 
 ## ⚡ 快速开始
 
-### 1. 克隆仓库
+### 克隆仓库
 
 ```bash
 git clone https://github.com/itshyao/proxyless-llm-websearch.git
 cd proxyless-llm-websearch
 ```
 
-### 2. 安装依赖
+### 安装依赖
 
 ```
 pip install -r requirements.txt
 python -m playwright install
 ```
 
-### 3. 快速开始
-
-#### 环境变量配置
+### 环境变量配置
 
 ```
 # 百炼llm
@@ -103,16 +100,18 @@ RERANK_API_KEY=sk-xxx
 RERANK_MODEL=gte-rerank-v2
 ```
 
-#### demo
+### Langgraph-Agent
+
+#### DEMO
 
 ```shell
-python demo.py
+python agent/demo.py
 ```
 
-#### 后端api
+#### API SERVE
 
 ```shell
-python api_serve.py
+python agent/api_serve.py
 ```
 
 ```python
@@ -149,23 +148,75 @@ except requests.exceptions.RequestException as e:
     print(f"⚠️ 请求异常：{str(e)}")
 ```
 
-#### gradio_demo
+#### Gradio
 
 ```
-python gradio_demo.py
+python agent/gradio_demo.py
 ```
 
 ![gradio](img/gradio1.png)
 
 ![gradio](img/gradio2.png)
 
-#### docker部署
+#### docker
 
 ```
-docker-compose up -d --build
+docker-compose -f docker-compose-ag.yml up -d --build
 ```
 
-### 4. 自定义模块
+### Langgrph-MCP
+
+#### 启动MCP服务
+
+```
+python mcp/websearch.py
+```
+
+#### DEMO
+
+```
+python mcp/demo.py
+```
+
+#### API SERVE
+
+```
+python mcp/api_serve.py
+```
+
+```
+import requests
+
+url = "http://localhost:8800/search"
+
+data = {
+  "question": "广州今日天气"
+}
+
+try:
+    response = requests.post(
+        url,
+        json=data
+    )
+
+    if response.status_code == 200:
+        print("✅ 请求成功！")
+        print("响应内容：", response.json())
+    else:
+        print(f"❌ 请求失败，状态码：{response.status_code}")
+        print("错误信息：", response.text)
+
+except requests.exceptions.RequestException as e:
+    print(f"⚠️ 请求异常：{str(e)}")
+```
+
+#### docker
+
+```
+docker-compose -f docker-compose-mcp.yml up -d --build
+```
+
+### 自定义模块
 
 #### 自定义分块
 
@@ -200,8 +251,6 @@ class YourReranker:
         return ["your chunk"], ["chunk index"]
 ```
 
-
-
 ## 🔍 与线上网络检索测试对比
 
 我们将项目与一些主流的在线 API 进行对比，评估了其在复杂问题下的表现。
@@ -218,10 +267,11 @@ class YourReranker:
 | **火山方舟**   | 5.00%     | 72.21%      | 22.79%              |
 | **百炼**       | 9.85%     | 62.79%      | 27.35%              |
 | **Our** | 19.85%    | 47.94%      | 32.06%              |
-
 ## 🙏 致谢
 
 本项目部分功能得益于以下开源项目的支持与启发，特此致谢：
 
-- 🧠 [LangGraph](https://github.com/langchain-ai/langgraph)：用于构建模块化智能体链路框架。
-- 🕷 [Crawl4AI](https://github.com/unclecode/crawl4ai)：强大的网页内容解析工具。
+- 🧠 [LangGraph](https://github.com/langchain-ai/langgraph)：用于构建模块化智能体链路框架，帮助快速搭建复杂的智能体系统。
+- 🕷 [Crawl4AI](https://github.com/unclecode/crawl4ai)：强大的网页内容解析工具，助力高效网页抓取与数据提取。
+- 🌐 [Playwright](https://github.com/microsoft/playwright)：现代浏览器自动化工具，支持跨浏览器的网页抓取和测试自动化。
+- 🔌 [Langchain MCP Adapters](https://github.com/langchain-ai/langchain-mcp-adapters)：用于多链处理MCP的构建。
